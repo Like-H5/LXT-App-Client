@@ -2,7 +2,7 @@
 
 require("./index.less")
 
-export default function FixedCard() {
+export default function FixedCard({data}) {
     return (
         <div className="fixed-contact">
             <div className="contact">
@@ -11,7 +11,7 @@ export default function FixedCard() {
             <div className="app">
 
                 <div className="ewm-pane">
-                    <img src="/assets/images/ewm_lk.jpg" alt=""/>
+                    <img src={`http://localhost:5000${data.app}`} alt=""/>
                 </div>
             </div>
             <div className="back-top">

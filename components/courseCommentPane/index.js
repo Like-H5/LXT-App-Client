@@ -1,8 +1,13 @@
 import {useEffect} from "react";
+// import {getUser} from "../../api/userApi";
+// import {useRouter} from "next/router";
+// import {addCourseComment} from "../../api/courseApi";
 
 require("./index.less")
 
-export default function CourseCommentPane() {
+export default function CourseCommentPane({_handlerComment}) {
+
+    // const router = useRouter()
 
     useEffect(() => {
         let score = 5;
@@ -23,12 +28,20 @@ export default function CourseCommentPane() {
         let content = document.getElementsByClassName("comment-content")[0];
         submit.onclick = function () {
             // 获取分数, 以及评论内容
-            console.log("分数:", score);
+            // console.log("分数:", score);
             let content_v = content.value
-            console.log("评论内容: ", content_v)
+            // console.log("评论内容: ", content_v)
+
+            _handlerComment && _handlerComment(score, content_v)
 
             // 借助网络请求, 调用对应的接口, 就可以把评论信息, 传递给服务器
-
+            // getUser().then(result=>{
+            //     if (result.id === undefined) {
+            //         router.push("/login")
+            //     } else {
+            //         addCourseComment(result.id, )
+            //     }
+            // })
         }
     }, [])
 

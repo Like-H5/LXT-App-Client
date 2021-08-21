@@ -1,8 +1,24 @@
-
+import {useRouter} from "next/router";
 
 require("./index.less")
-export default function NavBar() {
-    
+import Link from "next/link"
+
+import {menuData} from "../../config/menuConfig";
+import {BaseURL} from "../../config/serverConfig";
+import {useEffect, useState} from "react";
+import {getUser, removeUser} from "../../api/userApi";
+
+export default function NavBar({data}) {
+    const router = useRouter()
+    const [userInfo, setUserInfo] = useState({})
+
+    const [freshFlag, setFreshFlag] = useState(false)
+    useEffect(() => {
+        getUser().then(result => {
+            setUserInfo(result)
+        })
+    }, [freshFlag])
+
     return (
         <div id="nav-bar">
             <div className="content bx">
@@ -15,7 +31,7 @@ export default function NavBar() {
                         </h1>
                     </div>
                     <div className="center">
-                        <form action="">
+                        <form action="/search">
                             <div className="search-bar">
                                 <div className="category">
                                     <label>
@@ -39,29 +55,55 @@ export default function NavBar() {
                         </form>
                     </div>
                     <div className="right">
-                        <div className="intro">
+
+                        {userInfo.id === undefined ? <div className="intro">
+                            <Link href={"/login"}>
+                                <a>
+                                    <div className="user">
+                                        <span className="nick-name">请登录</span>
+                                        <img className="header" src="/assets/images/place.png" alt=""/>
+                                    </div>
+                                </a>
+                            </Link>
+                        </div> : <div className="intro">
                             <div className="user">
-                                <span className="nick-name">用户昵称: sz</span>
-                                <img className="header" src="/assets/images/header.png" alt=""/>
+                                <span className="nick-name">{userInfo.nick_name}</span>
+                                <img className="header" src={BaseURL + userInfo.header} alt=""/>
                             </div>
                             <div className="operation-pane">
                                 <ul className="operation">
-                                    <li><a href="#">撩课学院 - itlike.com</a></li>
-                                    <li>我的学习</li>
-                                    <li>设置</li>
-                                    <li className="exit">退出</li>
+                                    <li><Link href={"/"}><a>撩课学院 - itlike.com</a></Link></li>
+                                    <li><Link href={"/mine"}><a>我的学习</a></Link></li>
+                                    <li><Link href={"/mine/setting"}><a>设置</a></Link></li>
+                                    <li className="exit" onClick={() => {
+                                        removeUser()
+                                        setFreshFlag(!freshFlag)
+                                        router.reload()
+                                    }}>退出</li>
                                 </ul>
                             </div>
-                        </div>
+                        </div>}
+
+
                     </div>
                 </div>
                 <div className="bottom">
                     <div className="left">
                         <ul className="menus">
-                            <li className="current"><a href="#">首页</a></li>
-                            <li><a href="#">讲师</a></li>
-                            <li><a href="#">课程</a></li>
-                            <li><a href="#">文章</a></li>
+                            {
+                                menuData.map(item => {
+                                    return <li key={item.id}
+                                               className={router.pathname === item.route ? "current" : ""}>
+                                        <Link href={item.route}>
+                                            <a>{item.title}</a>
+                                        </Link>
+                                    </li>
+                                })
+                            }
+
+                            {/*<li><Link href="/teacher"><a>讲师</a></Link></li>*/}
+                            {/*<li><Link href="/course"><a>课程</a></Link></li>*/}
+                            {/*<li><Link href="/article"><a>文章</a></Link></li>*/}
                         </ul>
                     </div>
                     <div className="right">
@@ -71,7 +113,7 @@ export default function NavBar() {
                                 <div className="ad-pane">
                                     <div className="title">关注撩课公众号</div>
                                     <div className="sub-title">- 领取课程免费福利,超值学习资料 -</div>
-                                    <img className="ewm" src="/assets/images/ewm_lk.jpg" alt=""/>
+                                    <img className="ewm" src={BaseURL + data.wechat_qrcode} alt=""/>
                                 </div>
                             </li>
                             <li className="iconfont icon-weixinxiaochengxu">
@@ -79,7 +121,7 @@ export default function NavBar() {
                                 <div className="ad-pane">
                                     <div className="title">撩课-小程序</div>
                                     <div className="sub-title">- 关注关注 -</div>
-                                    <img className="ewm" src="/assets/images/ewm_lk.jpg" alt=""/>
+                                    <img className="ewm" src={BaseURL + data.mini_program} alt=""/>
                                 </div>
                             </li>
                         </ul>

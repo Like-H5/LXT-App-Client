@@ -1,29 +1,66 @@
+import {miniMenuData} from "../../config/menuConfig";
+import Link from "next/link";
+import {useRouter} from "next/router";
+import {useEffect, useState} from "react";
+import {getUser, removeUser} from "../../api/userApi";
+import {BaseURL} from "../../config/serverConfig";
 
 require("./index.less")
 
 export default function MiniNavBar() {
-    
+    const router = useRouter()
+    const {category="all", kw=""} = router.query;
+
+    const [categoryV, setCategoryV] = useState(category)
+    const [kwV, setKwV] = useState(kw)
+
+    const [userInfo, setUserInfo] = useState({})
+    const [freshFlag, setFreshFlag] = useState(false)
+
+    useEffect(() => {
+        setCategoryV(category)
+        setKwV(kw)
+    }, [category, kw])
+
+
+    useEffect(() => {
+        getUser().then(result => {
+            setUserInfo(result)
+        })
+    }, [freshFlag, router.pathname, router.query])
+
+
     return (
         <div className="navbar-mini">
             <div className="content bx">
                 <div className="left">
                     <h1 className="logo">
-                        <a href="#">
-                            撩学堂
-                        </a>
+                        <Link href={"/"}>
+                            <a>
+                                撩学堂
+                            </a>
+                        </Link>
                     </h1>
                     <ul className="menus">
-                        <li className="current"><a href="#">讲师</a></li>
-                        <li><a href="#">课程</a></li>
-                        <li><a href="#">文章</a></li>
+                        {
+                            miniMenuData.map(item => {
+                                return <li key={item.id} className={router.pathname === item.route ? "current": ""}>
+                                    <Link href={item.route}>
+                                        <a>{item.title}</a>
+                                    </Link>
+                                </li>
+                            })
+                        }
                     </ul>
                 </div>
                 <div className="center">
-                    <form action="">
+                    <form action="/search">
                         <div className="search-bar">
                             <div className="category">
                                 <label>
-                                    <select name="category">
+                                    <select name="category" value={categoryV} onChange={(evt)=>{
+                                        setCategoryV(evt.target.value)
+                                    }}>
                                         <option value="all">全部</option>
                                         <option value="course">课程</option>
                                         <option value="teacher">讲师</option>
@@ -33,7 +70,9 @@ export default function MiniNavBar() {
                             </div>
                             <div className="keyword">
                                 <label>
-                                    <input type="text" placeholder="请输入搜索关键字" name="kw"/>
+                                    <input type="text" placeholder="请输入搜索关键字" name="kw" value={kwV} onChange={(evt)=>{
+                                        setKwV(evt.target.value)
+                                    }}/>
                                 </label>
                             </div>
                             <div className="submit-btn">
@@ -43,20 +82,33 @@ export default function MiniNavBar() {
                     </form>
                 </div>
                 <div className="right">
-                    <div className="intro">
+                    {userInfo.id === undefined ? <div className="intro">
+                        <Link href={"/login"}>
+                            <a>
+                                <div className="user">
+                                    <span className="nick-name">请登录</span>
+                                    <img className="header" src="/assets/images/place.png" alt=""/>
+                                </div>
+                            </a>
+                        </Link>
+                    </div> : <div className="intro">
                         <div className="user">
-                            <span className="nick-name">用户昵称: sz</span>
-                            <img className="header" src="/assets/images/header.png" alt=""/>
+                            <span className="nick-name">{userInfo.nick_name}</span>
+                            <img className="header" src={BaseURL + userInfo.header} alt=""/>
                         </div>
                         <div className="operation-pane">
                             <ul className="operation">
-                                <li><a href="#">撩课学院 - itlike.com</a></li>
-                                <li>我的学习</li>
-                                <li>设置</li>
-                                <li className="exit">退出</li>
+                                <li><Link href={"/"}><a>撩课学院 - itlike.com</a></Link></li>
+                                <li><Link href={"/mine"}><a>我的学习</a></Link></li>
+                                <li><Link href={"/mine/setting"}><a>设置</a></Link></li>
+                                <li className="exit" onClick={() => {
+                                    removeUser()
+                                    setFreshFlag(!freshFlag)
+                                    router.reload()
+                                }}>退出</li>
                             </ul>
                         </div>
-                    </div>
+                    </div>}
                 </div>
             </div>
         </div>

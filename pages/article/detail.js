@@ -1,18 +1,19 @@
 import BreadNav from "../../components/breadNav";
+import {getArticleDetail} from "../../api/articleApi";
+import {getFormatTimeFromDate} from "../../tools/dateTool";
 
+export default function ArticleDetail({articleDetail}) {
 
-export default function ArticleDetail() {
+    // const router = useRouter()
+    // console.log(router)
 
     return (
         <>
-            <BreadNav/>
+            <BreadNav data={[{id: 0, title: "首页", href: "/"}, {id: 1, title: "文章列表", href: "/article"}, {id: 2, title: articleDetail.title, href: ""}]}/>
             <div className="news-detail bx">
-                <h3 className="title">撩课学院-极系列课程</h3>
-                <p className="time">2021-12-30 12:12:00</p>
-                <div className="content">
-                    <p>随便一个段落</p>
-                    <h4>小标题</h4>
-                </div>
+                <h3 className="title">{articleDetail.title}</h3>
+                <p className="time">{getFormatTimeFromDate(articleDetail.create_time)}</p>
+                <div className="content" dangerouslySetInnerHTML={{__html: articleDetail.content}}/>
             </div>
 
             <style jsx>{`
@@ -40,4 +41,25 @@ export default function ArticleDetail() {
             `}</style>
         </>
     )
+}
+
+export const getServerSideProps = async (context) => {
+
+    // 文章id获取
+    const {id} = context.query;
+    if (id === undefined) {
+        return {
+            redirect: {
+                destination: '/article',
+                permanent: false,
+            },
+        }
+    } else {
+        let articleDetail = await getArticleDetail(id)
+        return {
+            props: {
+                articleDetail: articleDetail.data
+            }
+        }
+    }
 }

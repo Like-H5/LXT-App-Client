@@ -2,29 +2,39 @@
 
 require("./index.less")
 
-export default function CourseCard() {
+import Link from "next/link";
+import {BaseURL} from "../../config/serverConfig";
+
+export default function CourseCard({data={}}) {
 
     return (
         <div className="course-card column5">
             <div className="image">
-                <span className="tag">热门</span>
-                <a href="#">
-                    <img src="/assets/images/course_img.png" alt=""/>
-                </a>
+                {""+data.is_hot === "1" ? <span className="tag">热门</span> : ""}
+
+                <Link href={{
+                    pathname: "/course/detail",
+                    query: {id: data.id}
+                }}>
+                    <a>
+                        <img src={BaseURL + data.fm_url} alt=""/>
+                    </a>
+                </Link>
+
             </div>
             <div className="title">
                 <a href="#">
-                    极系列-H5全栈-Sz
+                    {data.title}
                 </a>
             </div>
             <div className="score">
                 <div className="star">
-                    <div className="y_star" style={{width: "60%"}}/>
+                    <div className="y_star" style={{width: `${data.comment_avg_score / 5 * 100}%`}}/>
                 </div>
-                <span className="score_text">4分</span>
+                <span className="score_text">{data.comment_avg_score}分</span>
             </div>
             <div className="zan">
-                <span className="good iconfont icon-icon_good">100人好评</span>
+                <span className="good iconfont icon-icon_good">{data.comment_total_count}人好评</span>
             </div>
         </div>
     )

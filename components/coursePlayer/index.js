@@ -1,32 +1,65 @@
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
+import {BaseURL} from "../../config/serverConfig";
+import {useRouter} from "next/router";
+import {getUser, updateUserStudyHistory} from "../../api/userApi";
 
 require("./index.less")
-// import DPlayer from "dplayer"
 
-export default function CoursePlayer() {
+export default function CoursePlayer({data}) {
+
+    const router = useRouter()
+
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(-1)
+
+    const [dp, setDp] = useState()
 
     useEffect(() => {
-        if (window) {
-            import("dplayer").then(({default: DPlayer})=>{
-                const dp = new DPlayer({
-                    container: document.getElementById('like-player'),
-                    screenshot: true,
-                    video: {
-                        url: '/assets/videos/test.mp4'
-                    }
-                });
+        if (data.length === 0) return;
+        import("dplayer").then(({default: DPlayer}) => {
+            const dp = new DPlayer({
+                container: document.getElementById('like-player'),
+                screenshot: true,
+                video: {
+                    url: ""
+                }
+            });
+            setDp(dp)
+
+            let {o_id} = router.query
+            let index = data.findIndex(item => item.id + "" === o_id + "")
+
+            setCurrentVideoIndex(index === -1 ? 0 : index)
+        })
+    }, [data])
+
+
+    useEffect(() => {
+        if (data.length === 0 || currentVideoIndex < 0 || currentVideoIndex > data.length - 1) return;
+        let {video_url, id} = data[currentVideoIndex]
+        // console.log("播放视频", video_url)
+        if (dp) {
+
+            getUser().then(userInfo=>{
+                updateUserStudyHistory(userInfo.id, router.query.id, id, 1)
             })
 
+            dp.switchVideo({
+                url: BaseURL + video_url
+            })
+            dp.play()
         }
-
-    }, [])
+    }, [currentVideoIndex])
 
     return (
         <div className="play-container">
             <div className="left">
                 <div className="top">
                     <a href="#" className="back-course">返回课程主页</a>
-                    <span className="pre-course"/>
+                    <span className="pre-course" onClick={() => {
+                        let destIndex = currentVideoIndex - 1
+                        destIndex = destIndex < 0 ? 0 : destIndex
+                        setCurrentVideoIndex(destIndex)
+                    }}/>
                 </div>
                 <div className="play-pane">
                     <p className="class-title">极系列-H5-第一节课</p>
@@ -37,7 +70,11 @@ export default function CoursePlayer() {
                     </div>
                 </div>
                 <div className="bottom">
-                    <span className="next-course"/>
+                    <span className="next-course" onClick={() => {
+                        let destIndex = currentVideoIndex + 1
+                        destIndex = destIndex > data.length - 1 ? data.length - 1 : destIndex
+                        setCurrentVideoIndex(destIndex)
+                    }}/>
                 </div>
             </div>
             <div className="right">
@@ -47,223 +84,15 @@ export default function CoursePlayer() {
                 <div className="items">
                     <div className="course-dg no-view">
                         <ul className="dg">
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress finished"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress no-finish"/>
-                                <span
-                                    className="c-title">Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress finished"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress no-finish"/>
-                                <span
-                                    className="c-title">Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress finished"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress no-finish"/>
-                                <span
-                                    className="c-title">Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress finished"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress no-finish"/>
-                                <span
-                                    className="c-title">Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress finished"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress no-finish"/>
-                                <span
-                                    className="c-title">Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress finished"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress no-finish"/>
-                                <span
-                                    className="c-title">Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress finished"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress no-finish"/>
-                                <span
-                                    className="c-title">Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
-                            <li>
-                                <span className="c-num">课时1: </span>
-                                <span className="c-progress"/>
-                                <span className="c-title">Python爬虫-必备基础-概述</span>
-                                <a href="#" className="c-view">立即观看</a>
-                            </li>
+                            {data.map((item, index) => {
+                                return <li key={item.id} className={currentVideoIndex === index ? "current" : ""}>
+                                    <span className="c-num">课时{item.num}: </span>
+                                    <span className="c-progress"/>
+                                    <span className="c-title" onClick={() => {
+                                        setCurrentVideoIndex(index)
+                                    }}>{item.title}</span>
+                                </li>
+                            })}
 
 
                         </ul>

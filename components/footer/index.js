@@ -1,6 +1,7 @@
+import {BaseURL} from "../../config/serverConfig";
 
 require("./index.less")
-export default function Footer() {
+export default function Footer({data}) {
 
     return (
         <div className="footer">
@@ -19,19 +20,19 @@ export default function Footer() {
                     <div className="ad-image">
                         <div className="left-ad">
                             <div className="ewm-pane">
-                                <img src="/assets/images/ewm_lk.jpg" alt=""/>
+                                <img src={`http://localhost:5000${data.wb_qrcode}`} alt=""/>
                             </div>
                         </div>
                         <div className="right-ad">
                             <div className="ewm-pane">
-                                <img src="/assets/images/ewm_lk.jpg" alt=""/>
+                                <img src={BaseURL + data.wechat_qrcode} alt=""/>
                             </div>
                         </div>
                     </div>
                     <p className="second-line">
                         客服热线 <span className="time">09:00-19:00</span>
                     </p>
-                    <p className="tel">0554-66666666</p>
+                    <p className="tel">{data.tel}</p>
                 </div>
             </div>
         </div>

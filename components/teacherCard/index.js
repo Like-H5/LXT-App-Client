@@ -1,19 +1,24 @@
 require("./index.less")
+import Link from "next/link";
+import {BaseURL} from "../../config/serverConfig";
 
-export default function TeacherCard() {
-
+export default function TeacherCard({data={}}) {
     return (
         <div className="teacher-card column3">
             <div className="left">
-                <a href="#">
-                    <img className="t-header" src="/assets/images/zsf.jpg" alt=""/>
-                    <div className="t-name">张三丰</div>
-                </a>
+                {/*<Link href={"/teacher/detail/[...ids]"} as={"/teacher/detail/123"}>*/}
+                <Link href={"/teacher/detail/"+data.id}>
+                    <a>
+                        <img className="t-header" src={BaseURL + data.header} alt=""/>
+                        <div className="t-name">{data.name}</div>
+                    </a>
+                </Link>
+
             </div>
             <div className="right">
-                <div className="t-position">腾讯CEO</div>
+                <div className="t-position">{data.position}</div>
                 <div className="t-intro">
-                    张三丰, 啥都会, 厉害得很!
+                    {data.intro}
                 </div>
             </div>
         </div>
